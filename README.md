@@ -1,10 +1,10 @@
-# sharlist
+# Sharlist
 
 Dynamic shopping lists
 
 ## Getting Started
 
-- Pull repo from github
+- Clone repo from github
 - Install dependencies
     > flutter packages get
 - Add firebase files
