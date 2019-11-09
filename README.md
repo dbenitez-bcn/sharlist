@@ -4,13 +4,21 @@ Dynamic shopping lists
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+- Pull repo from github
+- Install dependencies
+    > flutter packages get
+- Add run environment configuration
+    - Run > Edit configurations
+    - Click on the + button
+    - Select flutter
+    - Add a name: Run &#60;ENVIRONMENT&#62;
+    - Add a dart entrypoint: $PROJECT_PATH/main_&#60;environment&#62;.dart
+    - Click on apply and OK
+- Run the application
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Build for Android
+    > flutter build --apk -t lib/main_<environment>.dart --release
+    
+## Build for iOS
+    > flutter build --ios -t lib/main_<environment>.dart --release
+ 
