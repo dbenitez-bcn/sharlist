@@ -7,6 +7,13 @@ Dynamic shopping lists
 - Pull repo from github
 - Install dependencies
     > flutter packages get
+- Add firebase files
+    - Android
+        - Go to firebase console and download google-services.json
+        - Paste the file inside android/app
+    - iOS
+        - Go to firebase console and download GoogleServices-info.plist
+        - Paste the file inside Runner/Runner
 - Add run environment configuration
     - Run > Edit configurations
     - Click on the + button
