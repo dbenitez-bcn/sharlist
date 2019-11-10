@@ -21,10 +21,13 @@ dependencies:
     sdk: flutter
   firebase_auth: ^0.14.0+8
   cloud_firestore: ^0.12.10
+  dartz: ^0.8.8
+  equatable: ^0.6.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  mockito: ^4.1.1
 
 
 # For information on the generic Dart part of this file, see the
