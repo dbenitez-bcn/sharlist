@@ -19,7 +19,15 @@ Dynamic shopping lists
     - Click on the + button
     - Select flutter
     - Add a name: Run &#60;ENVIRONMENT&#62;
-    - Add a dart entrypoint: $PROJECT_PATH/main_&#60;environment&#62;.dart
+    - Add a dart entrypoint: $PROJECT_PATH/lib/main_&#60;environment&#62;.dart
+    - Click on apply and OK
+- Add run tests configuration
+    - Run > Edit configurations
+    - Click on the + button
+    - Select flutter test
+    - Add a name: Run all test;
+    - Set scope as 'All in directory'
+    - Add a test directory: $PROJECT_PATH/test/
     - Click on apply and OK
 - Run the application
 
