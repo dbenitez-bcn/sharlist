@@ -79,7 +79,7 @@ void main() {
       // Assert
       expect(result, expected);
     });
-    
+
     test('should conver a user admin to json', () async {
       // Act
       final result = testAdmin.toJson();
