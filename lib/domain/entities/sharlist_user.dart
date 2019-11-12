@@ -9,6 +9,5 @@ class SharlistUser extends Equatable {
   SharlistUser({@required this.uid, @required this.role});
 
   @override
-  // TODO: implement props
   List<Object> get props => [uid, role];
 }
