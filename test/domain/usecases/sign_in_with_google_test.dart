@@ -11,8 +11,6 @@ void main() {
   SignInWithGoogle usecase;
   MockAuthService mockAuthService;
   final user = SharlistUser(uid: 'uid', role: Role.user);
-  final email = 'test@example.com';
-  final password = 'testPassword';
 
   setUp(() {
     mockAuthService = MockAuthService();
@@ -21,15 +19,15 @@ void main() {
 
   test('should sign in with users google account', () async {
     // Arrange
-    when(mockAuthService.getUserUsingGoogle(any, any))
+    when(mockAuthService.getUserUsingGoogle())
         .thenAnswer((_) async => Right(user));
 
     // Act
-    final result = await usecase(email: email, password: password);
+    final result = await usecase();
 
     // Assert
     expect(result, Right(user));
-    verify(mockAuthService.getUserUsingGoogle(email, password));
+    verify(mockAuthService.getUserUsingGoogle());
     verifyNoMoreInteractions(mockAuthService);
   });
 }

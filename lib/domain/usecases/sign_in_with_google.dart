@@ -1,5 +1,4 @@
 import 'package:dartz/dartz.dart';
-import 'package:meta/meta.dart';
 import 'package:sharlist/core/error/failures.dart';
 import 'package:sharlist/domain/entities/sharlist_user.dart';
 import 'package:sharlist/domain/services/auth_service.dart';
@@ -9,10 +8,7 @@ class SignInWithGoogle {
 
   SignInWithGoogle(this.service);
 
-  Future<Either<Failure, SharlistUser>> call({
-    @required String email,
-    @required String password,
-  }) async {
-    return await service.getUserUsingGoogle(email, password);
+  Future<Either<Failure, SharlistUser>> call() async {
+    return await service.getUserUsingGoogle();
   }
 }
