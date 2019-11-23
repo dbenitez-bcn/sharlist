@@ -24,24 +24,49 @@ class Constants {
   static get APP_NAME {
     return _config[_Config.APP_NAME];
   }
+
+  static String get ENVIRONMENT {
+    return _config[_Config.ENVIRONMENT];
+  }
+
+  static String get USERS_COLLECTION {
+    return _config[_Config.USERS_COLLECTION];
+  }
+
+  static String get DATABASE_COLLECTION {
+    return _config[_Config.DATABASE_COLLECTION];
+  }
+
 }
 
 class _Config {
   static const WHERE_AM_I = "WHERE_AM_I";
   static const APP_NAME = "APP_NAME";
+  static const ENVIRONMENT = "ENVIRONMENT";
+  static const USERS_COLLECTION = "USERS_COLLECTION";
+  static const DATABASE_COLLECTION = "DATABASE_COLLECTION";
 
   static Map<String, dynamic> debugConstants = {
     WHERE_AM_I: "local",
-    APP_NAME: "Sharlist dev"
+    APP_NAME: "Sharlist dev",
+    ENVIRONMENT: "dev",
+    USERS_COLLECTION: "users",
+    DATABASE_COLLECTION: "sharlist"
   };
 
   static Map<String, dynamic> qaConstants = {
     WHERE_AM_I: "staging",
-    APP_NAME: "Sharlist staging"
+    APP_NAME: "Sharlist staging",
+    ENVIRONMENT: "staging",
+    USERS_COLLECTION: "users",
+    DATABASE_COLLECTION: "sharlist"
   };
 
   static Map<String, dynamic> prodConstants = {
     WHERE_AM_I: "prod",
-    APP_NAME: "Sharlist"
+    APP_NAME: "Sharlist",
+    ENVIRONMENT: "prod",
+    USERS_COLLECTION: "users",
+    DATABASE_COLLECTION: "sharlist"
   };
 }
