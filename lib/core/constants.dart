@@ -36,7 +36,6 @@ class Constants {
   static String get DATABASE_COLLECTION {
     return _config[_Config.DATABASE_COLLECTION];
   }
-
 }
 
 class _Config {
@@ -46,27 +45,29 @@ class _Config {
   static const USERS_COLLECTION = "USERS_COLLECTION";
   static const DATABASE_COLLECTION = "DATABASE_COLLECTION";
 
-  static Map<String, dynamic> debugConstants = {
-    WHERE_AM_I: "local",
-    APP_NAME: "Sharlist dev",
-    ENVIRONMENT: "dev",
+  static Map<String, dynamic> baseConstants = {
     USERS_COLLECTION: "users",
     DATABASE_COLLECTION: "sharlist"
   };
 
-  static Map<String, dynamic> qaConstants = {
-    WHERE_AM_I: "staging",
-    APP_NAME: "Sharlist staging",
-    ENVIRONMENT: "staging",
-    USERS_COLLECTION: "users",
-    DATABASE_COLLECTION: "sharlist"
-  };
+  static Map<String, dynamic> debugConstants = baseConstants
+    ..addAll({
+      WHERE_AM_I: "local",
+      APP_NAME: "Sharlist dev",
+      ENVIRONMENT: "dev",
+    });
 
-  static Map<String, dynamic> prodConstants = {
-    WHERE_AM_I: "prod",
-    APP_NAME: "Sharlist",
-    ENVIRONMENT: "prod",
-    USERS_COLLECTION: "users",
-    DATABASE_COLLECTION: "sharlist"
-  };
+  static Map<String, dynamic> qaConstants = baseConstants
+    ..addAll({
+      WHERE_AM_I: "staging",
+      APP_NAME: "Sharlist staging",
+      ENVIRONMENT: "staging",
+    });
+
+  static Map<String, dynamic> prodConstants = baseConstants
+    ..addAll({
+      WHERE_AM_I: "prod",
+      APP_NAME: "Sharlist",
+      ENVIRONMENT: "prod",
+    });
 }
