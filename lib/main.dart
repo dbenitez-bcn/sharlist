@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:sharlist/core/injection_container.dart';
 
 import 'core/constants.dart';
 
-void mainApp() => runApp(MyApp());
+void mainApp() {
+  setUpDependencies();
+  runApp(MyApp());
+}
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
