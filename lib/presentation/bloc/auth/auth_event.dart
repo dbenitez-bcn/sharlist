@@ -9,4 +9,9 @@ class SignInAnonymouslyEvent extends AuthEvent {
   List<Object> get props => [];
 }
 
+class SignInWithGoogleEvent extends AuthEvent {
+  @override
+  List<Object> get props => [];
+}
+
 // TODO: Adds events for other sign in ways

@@ -2,12 +2,14 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
 import 'package:sharlist/domain/usecases/sign_in_anonymously.dart';
+import 'package:sharlist/domain/usecases/sign_in_with_google.dart';
 import './bloc.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final SignInAnonymously signInAnonymously;
+  final SignInWithGoogle signInWithGoogle;
 
-  AuthBloc({@required this.signInAnonymously})
+  AuthBloc({@required this.signInAnonymously, @required this.signInWithGoogle})
       : assert(signInAnonymously != null);
 
   @override
@@ -18,6 +20,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     if(event is SignInAnonymouslyEvent) {
       yield Loading();
       final response = await signInAnonymously();
+      yield response.fold(_fail, _sendUser);
+    }
+    else if(event is SignInWithGoogleEvent) {
+      yield Loading();
+      final response = await signInWithGoogle();
       yield response.fold(_fail, _sendUser);
     }
   }

@@ -1,5 +1,4 @@
 import 'package:dartz/dartz.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sharlist/core/error/exceptions.dart';
@@ -34,9 +33,9 @@ void main() {
           verify(mockDataSource.getUserUsingGoogle());
           expect(result, equals(Right(user)));
         });
-    test('should return a failure when bad server response', () async {
+    test('should return a FirebaseSignInFailure when an FirebaseSignInException is thrown', () async {
       // Arrange
-      when(mockDataSource.getUserUsingGoogle()).thenThrow(ServerException());
+      when(mockDataSource.getUserUsingGoogle()).thenThrow(FirebaseSignInException());
 
       // Act
       final result = await repository.getUserUsingGoogle();
@@ -44,7 +43,20 @@ void main() {
       // Assert
       verify(mockDataSource.getUserUsingGoogle());
       verifyNoMoreInteractions(mockDataSource);
-      expect(result, equals((Left(ServerFailure()))));
+      expect(result, equals((Left(FirebaseSignInFailure()))));
+    });
+
+    test('should return a UnsuccessfulGoogleSignInFailure when an UnsuccessfulGoogleSignInException is thrown', () async {
+      // Arrange
+      when(mockDataSource.getUserUsingGoogle()).thenThrow(UnsuccessfulGoogleSignInException());
+
+      // Act
+      final result = await repository.getUserUsingGoogle();
+
+      // Assert
+      verify(mockDataSource.getUserUsingGoogle());
+      verifyNoMoreInteractions(mockDataSource);
+      expect(result, equals((Left(UnsuccessfulGoogleSignInFailure()))));
     });
   });
 

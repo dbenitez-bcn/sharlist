@@ -34,8 +34,10 @@ class AuthRepositoryImpl implements AuthService {
   Future<Either<Failure, SharlistUser>> getUserUsingGoogle() async {
     try {
       return Right(await dataSource.getUserUsingGoogle());
-    } on ServerException {
-      return Left(ServerFailure());
+    } on UnsuccessfulGoogleSignInException {
+      return Left(UnsuccessfulGoogleSignInFailure());
+    } on FirebaseSignInException {
+      return Left(FirebaseSignInFailure());
     }
   }
 }

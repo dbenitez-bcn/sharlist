@@ -8,4 +8,11 @@ abstract class Failure extends Equatable {
 }
 
 class ServerFailure extends Failure {
+  final String message;
+
+  ServerFailure({this.message});
 }
+
+class UnsuccessfulGoogleSignInFailure extends ServerFailure {}
+
+class FirebaseSignInFailure extends ServerFailure {}
