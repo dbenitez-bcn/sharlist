@@ -26,6 +26,7 @@ dependencies:
   equatable: ^0.6.0
   flutter_bloc: ^2.0.1
   get_it: ^3.0.3
+  flutter_facebook_login: ^3.0.0
 
 dev_dependencies:
   flutter_test:

@@ -52,5 +52,19 @@
     		</array>
     	</dict>
     </array>
+	<!-- Facebook Login configuration -->
+	<key>CFBundleURLTypes</key>
+	<array>
+	<dict>
+	<key>CFBundleURLSchemes</key>
+	<array>
+		<string>fb487070078870623</string>
+	</array>
+	</dict>
+	</array>
+	<key>FacebookAppID</key>
+	<string>487070078870623</string>
+	<key>FacebookDisplayName</key>
+	<string>Sharlist</string>
 </dict>
 </plist>
