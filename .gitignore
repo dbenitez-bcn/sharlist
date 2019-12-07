@@ -8,6 +8,8 @@ git # Miscellaneous
 .buildlog/
 .history
 .svn/
+.android/
+.ios/
 
 # IntelliJ related
 *.iml
