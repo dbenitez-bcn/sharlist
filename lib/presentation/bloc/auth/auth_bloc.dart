@@ -10,19 +10,19 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final SignInWithGoogle signInWithGoogle;
 
   AuthBloc({@required this.signInAnonymously, @required this.signInWithGoogle})
-      : assert(signInAnonymously != null);
+      : assert(signInAnonymously != null),
+        assert(signInWithGoogle != null);
 
   @override
   AuthState get initialState => Empty();
 
   @override
   Stream<AuthState> mapEventToState(AuthEvent event) async* {
-    if(event is SignInAnonymouslyEvent) {
+    if (event is SignInAnonymouslyEvent) {
       yield Loading();
       final response = await signInAnonymously();
       yield response.fold(_fail, _sendUser);
-    }
-    else if(event is SignInWithGoogleEvent) {
+    } else if (event is SignInWithGoogleEvent) {
       yield Loading();
       final response = await signInWithGoogle();
       yield response.fold(_fail, _sendUser);
