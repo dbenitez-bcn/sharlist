@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sharlist/core/injection_container.dart';
+import 'package:sharlist/presentation/bloc/auth/auth_bloc.dart';
+import 'package:sharlist/presentation/bloc/auth/auth_event.dart';
+import 'package:sharlist/presentation/bloc/auth/auth_state.dart';
+import 'package:sharlist/presentation/widgets/sign_in_anonymous_button.dart';
 
 import 'core/constants.dart';
 
@@ -13,21 +18,22 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: '${Constants.APP_NAME}',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
-        primarySwatch: Colors.blue,
-      ),
-      home: MyHomePage(title: '${Constants.APP_NAME}'),
-    );
+        title: '${Constants.APP_NAME}',
+        theme: ThemeData(
+          // This is the theme of your application.
+          //
+          // Try running your application with "flutter run". You'll see the
+          // application has a blue toolbar. Then, without quitting the app, try
+          // changing the primarySwatch below to Colors.green and then invoke
+          // "hot reload" (press "r" in the console where you ran "flutter run",
+          // or simply save your changes to "hot reload" in a Flutter IDE).
+          // Notice that the counter didn't reset back to zero; the application
+          // is not restarted.
+          primarySwatch: Colors.blue,
+        ),
+        //home: Scaffold(body: Center(child: Text('${Constants.APP_NAME}')))
+        home: MyHomePage(title: '${Constants.APP_NAME}'),
+        );
   }
 }
 
@@ -65,53 +71,87 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
-      appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug painting" (press "p" in the console, choose the
-          // "Toggle Debug Paint" action from the Flutter Inspector in Android
-          // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-          // to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'You have pushed the button this many times:',
+      appBar: AppBar(title: Text(widget.title)),
+      body: BlocProvider(
+        builder: (_) => sl<AuthBloc>(),
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(10),
+            child: Column(
+              children: <Widget>[
+                SizedBox(height: 10),
+                // Top half
+                Container(
+                    // Third of the size of the screen
+                    height: MediaQuery.of(context).size.height / 3,
+                    // Message Text widgets / CircularLoadingIndicator
+                    child: new AuthBlocBuilder()),
+                SizedBox(height: 20),
+                // Bottom half
+                Column(
+                  children: <Widget>[
+                    // TextField
+                    Placeholder(fallbackHeight: 40),
+                    SizedBox(height: 10),
+                    Row(
+                      children: <Widget>[
+                        Expanded(
+                          // Search concrete button
+                          child: SignInAnonymouslyButton(),
+                        ),
+                        SizedBox(width: 10),
+                        Expanded(
+                          // Random button
+                          child: new GoogleButton(),
+                        )
+                      ],
+                    )
+                  ],
+                )
+              ],
             ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.display1,
-            ),
-          ],
+          ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+    );
+  }
+}
+
+class AuthBlocBuilder extends StatelessWidget {
+  const AuthBlocBuilder({
+    Key key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<AuthBloc, AuthState>(
+      builder: (context, state) {
+        if (state is Empty)
+          return Text("Sign in!");
+        else if (state is Loading)
+          return CircularProgressIndicator();
+        else if (state is Loaded)
+          return Text(state.user.uid);
+        else if (state is Error) return Text(state.message);
+        return Container();
+      },
+    );
+  }
+}
+
+class GoogleButton extends StatelessWidget {
+  const GoogleButton({
+    Key key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return RaisedButton(
+      child: Text('Google'),
+      onPressed: () {
+        BlocProvider.of<AuthBloc>(context).add(SignInWithGoogleEvent());
+      },
     );
   }
 }

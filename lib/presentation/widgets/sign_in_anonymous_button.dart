@@ -1,19 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:sharlist/core/injection_container.dart';
-import 'package:sharlist/domain/usecases/sign_in_anonymously.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:sharlist/presentation/bloc/auth/auth_bloc.dart';
+import 'package:sharlist/presentation/bloc/auth/auth_event.dart';
 
 class SignInAnonymouslyButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FlatButton(
       key: Key('signInAnonymouslyButton'),
-      onPressed: _signIn,
+      onPressed: () {
+        BlocProvider.of<AuthBloc>(context).add(SignInAnonymouslyEvent());
+      },
       child: Text('Acceder sin iniciar sesion'),
     );
-  }
-
-  void _signIn() {
-    final useCase = sl<SignInAnonymously>();
-    useCase();
   }
 }
