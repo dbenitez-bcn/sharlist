@@ -102,8 +102,26 @@ void main() {
     when(mockEnvironmentDocument.collection(any))
         .thenReturn(mockUsersCollection);
     when(mockUsersCollection.document(any)).thenReturn(mockUserDocument);
-    when(mockUserDocument.get()).thenAnswer((_) async => mockUserSnapshot);
     when(mockUserSnapshot.data).thenReturn(userJson);
+  }
+
+  void _arrangeFirestoreUserAlreadyExist() {
+    int timesCalled = 0;
+    when(mockUserDocument.get()).thenAnswer((_) async => mockUserSnapshot);
+    _arrangeFirestore();
+  }
+
+  void _arrangeFirestoreUserDoNotExist() {
+    int timesCalled = 0;
+    when(mockUserDocument.get()).thenAnswer((_) async {
+      if (timesCalled == 0) {
+        timesCalled++;
+        return null;
+      } else {
+        return mockUserSnapshot;
+      }
+    });
+    _arrangeFirestore();
   }
 
   group('User data source', () {
@@ -116,7 +134,7 @@ void main() {
             .thenAnswer((_) async => mockAuthResult);
         when(mockAuthResult.user).thenReturn(mockFirebaseUser);
         when(mockFirebaseUser.uid).thenReturn(uid);
-        _arrangeFirestore();
+        _arrangeFirestoreUserAlreadyExist();
 
         // Act
         final result = await dataSource.getAnonymousUser();
@@ -131,20 +149,22 @@ void main() {
     });
 
     group('Google sign in', () {
-      test('should return a sharlist user when getUserUsingGoogle is called',
+      test(
+          'should return a sharlist user when getUserUsingGoogle is called and create the user if do not exist',
           () async {
         // Arrange
         when(mockGoogleSignIn.signIn())
             .thenAnswer((_) async => mockGoogleSignInAccount);
         when(mockGoogleSignInAccount.authentication)
             .thenAnswer((_) async => mockGoogleSignInAuthentication);
-        when(mockGoogleSignInAuthentication.accessToken).thenReturn(accessToken);
+        when(mockGoogleSignInAuthentication.accessToken)
+            .thenReturn(accessToken);
         when(mockGoogleSignInAuthentication.idToken).thenReturn(idToken);
         when(mockAuth.signInWithCredential(any))
             .thenAnswer((_) async => mockAuthResult);
         when(mockAuthResult.user).thenReturn(mockFirebaseUser);
         when(mockFirebaseUser.uid).thenReturn(uid);
-        _arrangeFirestore();
+        _arrangeFirestoreUserDoNotExist();
 
         // Act
         final SharlistUser result = await dataSource.getUserUsingGoogle();
@@ -153,6 +173,34 @@ void main() {
         verify(mockGoogleSignIn.signIn());
         verify(mockAuth.signInWithCredential(any));
         verify(mockUserDocument.setData(userJson));
+        verify(mockUserDocument.get());
+        verifyNoMoreInteractions(mockAuth);
+        expect(result, expectedUser);
+      });
+
+      test('should return a sharlist user when getUserUsingGoogle is called',
+          () async {
+        // Arrange
+        when(mockGoogleSignIn.signIn())
+            .thenAnswer((_) async => mockGoogleSignInAccount);
+        when(mockGoogleSignInAccount.authentication)
+            .thenAnswer((_) async => mockGoogleSignInAuthentication);
+        when(mockGoogleSignInAuthentication.accessToken)
+            .thenReturn(accessToken);
+        when(mockGoogleSignInAuthentication.idToken).thenReturn(idToken);
+        when(mockAuth.signInWithCredential(any))
+            .thenAnswer((_) async => mockAuthResult);
+        when(mockAuthResult.user).thenReturn(mockFirebaseUser);
+        when(mockFirebaseUser.uid).thenReturn(uid);
+        _arrangeFirestoreUserAlreadyExist();
+
+        // Act
+        final SharlistUser result = await dataSource.getUserUsingGoogle();
+
+        // Assert
+        verify(mockGoogleSignIn.signIn());
+        verify(mockAuth.signInWithCredential(any));
+        verifyNever(mockUserDocument.setData(any));
         verify(mockUserDocument.get());
         verifyNoMoreInteractions(mockAuth);
         expect(result, expectedUser);
@@ -206,7 +254,33 @@ void main() {
             .thenAnswer((_) async => mockAuthResult);
         when(mockAuthResult.user).thenReturn(mockFirebaseUser);
         when(mockFirebaseUser.uid).thenReturn(uid);
-        _arrangeFirestore();
+        _arrangeFirestoreUserAlreadyExist();
+
+        // Act
+        final SharlistUser result = await dataSource.getUserUsingFacebook();
+
+        // Assert
+        verify(mockFacebookLogin.logIn(['email']));
+        verify(mockAuth.signInWithCredential(any));
+        verifyNever(mockUserDocument.setData(any));
+        verify(mockUserDocument.get());
+        verifyNoMoreInteractions(mockAuth);
+        expect(result, expectedUser);
+      });
+
+      test(
+          'should Should return a sharlit user when getUserUsingFacebook is called and create the user if do not exist',
+          () async {
+        // Arrange
+        when(mockFacebookLogin.logIn(any))
+            .thenAnswer((_) async => mockFacebookLoginResult);
+        when(mockFacebookLoginResult.accessToken).thenReturn(mockFacebookToken);
+        when(mockFacebookToken.token).thenReturn(idToken);
+        when(mockAuth.signInWithCredential(any))
+            .thenAnswer((_) async => mockAuthResult);
+        when(mockAuthResult.user).thenReturn(mockFirebaseUser);
+        when(mockFirebaseUser.uid).thenReturn(uid);
+        _arrangeFirestoreUserDoNotExist();
 
         // Act
         final SharlistUser result = await dataSource.getUserUsingFacebook();

@@ -39,7 +39,7 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
     final GoogleSignInAccount account = await _getGoogleAccount();
     final AuthCredential credential = await _getAuthCredential(account);
     final String uid = await _signInWithCredential(credential);
-    return _createUserWith(uid);
+    return _getUserByUid(uid);
   }
 
   @override
@@ -47,7 +47,7 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
     final FacebookLoginResult loginResult = await facebookLogin.logIn(['email']);
     final AuthCredential credential = _getFacebookCredential(loginResult);
     final String uid = await _signInWithCredential(credential);
-    return _createUserWith(uid);
+    return _getUserByUid(uid);
   }
 
   AuthCredential _getFacebookCredential(FacebookLoginResult loginResult) {
@@ -112,13 +112,14 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
   }
 
   Future<SharlistUser> _getUserByUid(String uid) async {
-    final document = await firestore
+    final DocumentSnapshot document = await firestore
         .collection(Constants.DATABASE_COLLECTION)
         .document(Constants.ENVIRONMENT)
         .collection(Constants.USERS_COLLECTION)
         .document(uid)
         .get();
 
-    return SharlistUserModel.fromJson(document.data);
+    if(document != null) return SharlistUserModel.fromJson(document.data);
+    else return _createUserWith(uid);
   }
 }
