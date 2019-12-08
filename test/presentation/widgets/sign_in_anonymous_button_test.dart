@@ -32,7 +32,8 @@ void main() {
     BlocProvider provider = BlocProvider<AuthBloc>(
         builder: (_) => AuthBloc(
             signInAnonymously: sl<SignInAnonymously>(),
-            signInWithGoogle: MockGoogleSignIn()),
+            signInWithGoogle: MockGoogleSignIn(),
+            signInWithFacebook: MockFacebookSignIn()),
         child: Center(child: widget));
     // Act
     await tester.pumpWidget(TestApp(provider));
