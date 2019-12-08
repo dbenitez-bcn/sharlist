@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_facebook_login/flutter_facebook_login.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:mockito/mockito.dart';
@@ -34,6 +35,12 @@ class MockGoogleSignInAccount extends Mock implements GoogleSignInAccount {}
 class MockGoogleSignInAuthentication extends Mock
     implements GoogleSignInAuthentication {}
 
+class MockFacebookLogin extends Mock implements FacebookLogin {}
+
+class MockFacebookLoginResult extends Mock implements FacebookLoginResult {}
+
+class MockFacebookToken extends Mock implements FacebookAccessToken {}
+
 void main() {
   UserRemoteDataSource dataSource;
   MockFirebaseAuth mockAuth;
@@ -48,18 +55,19 @@ void main() {
   MockGoogleSignIn mockGoogleSignIn;
   MockGoogleSignInAccount mockGoogleSignInAccount;
   MockGoogleSignInAuthentication mockGoogleSignInAuthentication;
+  MockFacebookLogin mockFacebookLogin;
+  MockFacebookLoginResult mockFacebookLoginResult;
+  MockFacebookToken mockFacebookToken;
 
   final String uid = 'test uid';
   final SharlistUser expectedUser =
       SharlistUserModel(uid: uid, role: Role.user);
   Constants.setEnvironment(Environment.DEV);
   final userJson = {'uid': uid, 'role': 'user'};
-  final String accesToken = 'access token test';
+  final String accessToken = 'access token test';
   final String idToken = 'id token test';
-  final AuthCredential fakeCredentials = GoogleAuthProvider.getCredential(
-      idToken: idToken, accessToken: accesToken);
 
-  setUp(() {
+  void _setUpMocks() {
     mockAuth = MockFirebaseAuth();
     mockAuthResult = MockAuthResult();
     mockFirebaseUser = MockFirebaseUser();
@@ -72,12 +80,31 @@ void main() {
     mockGoogleSignIn = MockGoogleSignIn();
     mockGoogleSignInAccount = MockGoogleSignInAccount();
     mockGoogleSignInAuthentication = MockGoogleSignInAuthentication();
+    mockFacebookLogin = MockFacebookLogin();
+    mockFacebookLoginResult = MockFacebookLoginResult();
+    mockFacebookToken = MockFacebookToken();
+  }
+
+  setUp(() {
+    _setUpMocks();
 
     dataSource = UserRemoteDataSourceImpl(
         auth: mockAuth,
         firestore: mockFirestore,
-        googleSignIn: mockGoogleSignIn);
+        googleSignIn: mockGoogleSignIn,
+        facebookLogin: mockFacebookLogin);
   });
+
+  void _arrangeFirestore() {
+    when(mockFirestore.collection(any)).thenReturn(mockDatabaseCollection);
+    when(mockDatabaseCollection.document(any))
+        .thenReturn(mockEnvironmentDocument);
+    when(mockEnvironmentDocument.collection(any))
+        .thenReturn(mockUsersCollection);
+    when(mockUsersCollection.document(any)).thenReturn(mockUserDocument);
+    when(mockUserDocument.get()).thenAnswer((_) async => mockUserSnapshot);
+    when(mockUserSnapshot.data).thenReturn(userJson);
+  }
 
   group('User data source', () {
     group('Anonymous sign in', () {
@@ -89,14 +116,7 @@ void main() {
             .thenAnswer((_) async => mockAuthResult);
         when(mockAuthResult.user).thenReturn(mockFirebaseUser);
         when(mockFirebaseUser.uid).thenReturn(uid);
-        when(mockFirestore.collection(any)).thenReturn(mockDatabaseCollection);
-        when(mockDatabaseCollection.document(any))
-            .thenReturn(mockEnvironmentDocument);
-        when(mockEnvironmentDocument.collection(any))
-            .thenReturn(mockUsersCollection);
-        when(mockUsersCollection.document(any)).thenReturn(mockUserDocument);
-        when(mockUserDocument.get()).thenAnswer((_) async => mockUserSnapshot);
-        when(mockUserSnapshot.data).thenReturn(userJson);
+        _arrangeFirestore();
 
         // Act
         final result = await dataSource.getAnonymousUser();
@@ -118,20 +138,13 @@ void main() {
             .thenAnswer((_) async => mockGoogleSignInAccount);
         when(mockGoogleSignInAccount.authentication)
             .thenAnswer((_) async => mockGoogleSignInAuthentication);
-        when(mockGoogleSignInAuthentication.accessToken).thenReturn(accesToken);
+        when(mockGoogleSignInAuthentication.accessToken).thenReturn(accessToken);
         when(mockGoogleSignInAuthentication.idToken).thenReturn(idToken);
         when(mockAuth.signInWithCredential(any))
             .thenAnswer((_) async => mockAuthResult);
         when(mockAuthResult.user).thenReturn(mockFirebaseUser);
         when(mockFirebaseUser.uid).thenReturn(uid);
-        when(mockFirestore.collection(any)).thenReturn(mockDatabaseCollection);
-        when(mockDatabaseCollection.document(any))
-            .thenReturn(mockEnvironmentDocument);
-        when(mockEnvironmentDocument.collection(any))
-            .thenReturn(mockUsersCollection);
-        when(mockUsersCollection.document(any)).thenReturn(mockUserDocument);
-        when(mockUserDocument.get()).thenAnswer((_) async => mockUserSnapshot);
-        when(mockUserSnapshot.data).thenReturn(userJson);
+        _arrangeFirestore();
 
         // Act
         final SharlistUser result = await dataSource.getUserUsingGoogle();
@@ -174,6 +187,92 @@ void main() {
 
         // Act
         final call = dataSource.getUserUsingGoogle;
+
+        // Assert
+        expect(call(), throwsA(expectedException));
+      });
+    });
+
+    group('Facebook way', () {
+      test(
+          'should Should return a sharlit user when getUserUsingFacebook is called',
+          () async {
+        // Arrange
+        when(mockFacebookLogin.logIn(any))
+            .thenAnswer((_) async => mockFacebookLoginResult);
+        when(mockFacebookLoginResult.accessToken).thenReturn(mockFacebookToken);
+        when(mockFacebookToken.token).thenReturn(idToken);
+        when(mockAuth.signInWithCredential(any))
+            .thenAnswer((_) async => mockAuthResult);
+        when(mockAuthResult.user).thenReturn(mockFirebaseUser);
+        when(mockFirebaseUser.uid).thenReturn(uid);
+        _arrangeFirestore();
+
+        // Act
+        final SharlistUser result = await dataSource.getUserUsingFacebook();
+
+        // Assert
+        verify(mockFacebookLogin.logIn(['email']));
+        verify(mockAuth.signInWithCredential(any));
+        verify(mockUserDocument.setData(userJson));
+        verify(mockUserDocument.get());
+        verifyNoMoreInteractions(mockAuth);
+        expect(result, expectedUser);
+      });
+
+      test(
+          'should return UnsuccessfulFacebookSignInException when FacebookLoginResult is canceled by user',
+          () async {
+        // Arrange
+        when(mockFacebookLogin.logIn(any))
+            .thenAnswer((_) async => mockFacebookLoginResult);
+        when(mockFacebookLoginResult.status)
+            .thenReturn(FacebookLoginStatus.cancelledByUser);
+        final TypeMatcher expectedException =
+            TypeMatcher<UnsuccessfulFacebookSignInException>();
+
+        // Act
+        final call = dataSource.getUserUsingFacebook;
+
+        // Assert
+        verifyZeroInteractions(mockAuth);
+        expect(call(), throwsA(expectedException));
+      });
+
+      test(
+          'should return UnsuccessfulFacebookSignInException when FacebookLoginResult has an error',
+          () async {
+        // Arrange
+        when(mockFacebookLogin.logIn(any))
+            .thenAnswer((_) async => mockFacebookLoginResult);
+        when(mockFacebookLoginResult.status)
+            .thenReturn(FacebookLoginStatus.error);
+        final TypeMatcher expectedException =
+            TypeMatcher<UnsuccessfulFacebookSignInException>();
+
+        // Act
+        final call = dataSource.getUserUsingFacebook;
+
+        // Assert
+        verifyZeroInteractions(mockAuth);
+        expect(call(), throwsA(expectedException));
+      });
+
+      test(
+          'should throw a ServerException when signInWithCredentials when wrong',
+          () async {
+        when(mockFacebookLogin.logIn(any))
+            .thenAnswer((_) async => mockFacebookLoginResult);
+        when(mockFacebookLoginResult.accessToken).thenReturn(mockFacebookToken);
+        when(mockFacebookToken.token).thenReturn(idToken);
+        when(mockAuth.signInWithCredential(any)).thenThrow(Exception());
+
+        // Arrange
+        final TypeMatcher expectedException =
+            TypeMatcher<FirebaseSignInException>();
+
+        // Act
+        final call = dataSource.getUserUsingFacebook;
 
         // Assert
         expect(call(), throwsA(expectedException));

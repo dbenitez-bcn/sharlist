@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
+import 'package:sharlist/core/error/failures.dart';
 import 'package:sharlist/data/enums/role.dart';
 import 'package:sharlist/domain/entities/sharlist_user.dart';
 import 'package:sharlist/domain/usecases/sign_in_with_facebook.dart';
@@ -27,6 +28,34 @@ void main() {
 
     // Assert
     expect(result, Right(user));
+    verify(mockAuthService.getUserUsingFacebook());
+    verifyNoMoreInteractions(mockAuthService);
+  });
+
+  test('should return a UnsuccessfulFacebookSignInFailure when facebook sign in fails', () async {
+    // Arrange
+    when(mockAuthService.getUserUsingFacebook())
+        .thenAnswer((_) async => Left(UnsuccessfulFacebookSignInFailure()));
+
+    // Act
+    final result = await usecase();
+
+    // Assert
+    expect(result, Left(UnsuccessfulFacebookSignInFailure()));
+    verify(mockAuthService.getUserUsingFacebook());
+    verifyNoMoreInteractions(mockAuthService);
+  });
+
+  test('should return a FirebaseSignInFailure when firebase sign in fails', () async {
+    // Arrange
+    when(mockAuthService.getUserUsingFacebook())
+        .thenAnswer((_) async => Left(FirebaseSignInFailure()));
+
+    // Act
+    final result = await usecase();
+
+    // Assert
+    expect(result, Left(FirebaseSignInFailure()));
     verify(mockAuthService.getUserUsingFacebook());
     verifyNoMoreInteractions(mockAuthService);
   });

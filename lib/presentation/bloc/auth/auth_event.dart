@@ -14,4 +14,7 @@ class SignInWithGoogleEvent extends AuthEvent {
   List<Object> get props => [];
 }
 
-// TODO: Adds events for other sign in ways
+class SignInWithFacebookEvent extends AuthEvent {
+  @override
+  List<Object> get props => [];
+}

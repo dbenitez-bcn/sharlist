@@ -15,4 +15,6 @@ class ServerFailure extends Failure {
 
 class UnsuccessfulGoogleSignInFailure extends ServerFailure {}
 
+class UnsuccessfulFacebookSignInFailure extends ServerFailure {}
+
 class FirebaseSignInFailure extends ServerFailure {}

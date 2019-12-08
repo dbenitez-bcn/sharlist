@@ -9,6 +9,8 @@ import 'package:sharlist/domain/services/auth_service.dart';
 
 class AuthRepositoryImpl implements AuthService {
   final UserRemoteDataSource dataSource;
+  final Either<Failure, SharlistUser> firebaseFailure =
+      Left(FirebaseSignInFailure());
 
   AuthRepositoryImpl({@required this.dataSource});
 
@@ -25,8 +27,10 @@ class AuthRepositoryImpl implements AuthService {
   Future<Either<Failure, SharlistUser>> getUserUsingFacebook() async {
     try {
       return Right(await dataSource.getUserUsingFacebook());
-    } on ServerException {
-      return Left(ServerFailure());
+    } on UnsuccessfulFacebookSignInException {
+      return Left(UnsuccessfulFacebookSignInFailure());
+    } on FirebaseSignInException {
+      return firebaseFailure;
     }
   }
 
@@ -37,7 +41,7 @@ class AuthRepositoryImpl implements AuthService {
     } on UnsuccessfulGoogleSignInException {
       return Left(UnsuccessfulGoogleSignInFailure());
     } on FirebaseSignInException {
-      return Left(FirebaseSignInFailure());
+      return firebaseFailure;
     }
   }
 }

@@ -72,9 +72,9 @@ void main() {
           verify(mockDataSource.getUserUsingFacebook());
           expect(result, equals(Right(user)));
         });
-    test('should return a failure when bad server response', () async {
+    test('should return a UnsuccessfulFacebookSignInFailure when an UnsuccessfulFacebookSignInException is thrown', () async {
       // Arrange
-      when(mockDataSource.getUserUsingFacebook()).thenThrow(ServerException());
+      when(mockDataSource.getUserUsingFacebook()).thenThrow(UnsuccessfulFacebookSignInException());
 
       // Act
       final result = await repository.getUserUsingFacebook();
@@ -82,7 +82,19 @@ void main() {
       // Assert
       verify(mockDataSource.getUserUsingFacebook());
       verifyNoMoreInteractions(mockDataSource);
-      expect(result, equals((Left(ServerFailure()))));
+      expect(result, equals((Left(UnsuccessfulFacebookSignInFailure()))));
+    });
+    test('should return a FirebaseSignInFailure when an FirebaseSignInException is thrown', () async {
+      // Arrange
+      when(mockDataSource.getUserUsingFacebook()).thenThrow(FirebaseSignInException());
+
+      // Act
+      final result = await repository.getUserUsingFacebook();
+
+      // Assert
+      verify(mockDataSource.getUserUsingFacebook());
+      verifyNoMoreInteractions(mockDataSource);
+      expect(result, equals((Left(FirebaseSignInFailure()))));
     });
   });
 

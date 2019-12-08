@@ -6,4 +6,6 @@ class ServerException implements Exception {
 
 class UnsuccessfulGoogleSignInException extends ServerException {}
 
+class UnsuccessfulFacebookSignInException extends ServerException {}
+
 class FirebaseSignInException extends ServerException {}

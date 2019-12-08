@@ -104,7 +104,12 @@ class _MyHomePageState extends State<MyHomePage> {
                         Expanded(
                           // Random button
                           child: new GoogleButton(),
-                        )
+                        ),
+                        SizedBox(width: 10),
+                        Expanded(
+                          // Random button
+                          child: new FacebookButton(),
+                        ),
                       ],
                     )
                   ],
@@ -151,6 +156,23 @@ class GoogleButton extends StatelessWidget {
       child: Text('Google'),
       onPressed: () {
         BlocProvider.of<AuthBloc>(context).add(SignInWithGoogleEvent());
+      },
+    );
+  }
+}
+
+
+class FacebookButton extends StatelessWidget {
+  const FacebookButton({
+    Key key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return RaisedButton(
+      child: Text('FacebookButton'),
+      onPressed: () {
+        BlocProvider.of<AuthBloc>(context).add(SignInWithFacebookEvent());
       },
     );
   }

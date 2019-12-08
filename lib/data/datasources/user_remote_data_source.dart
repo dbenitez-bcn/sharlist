@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_facebook_login/flutter_facebook_login.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:meta/meta.dart';
 import 'package:sharlist/core/constants.dart';
@@ -18,11 +19,13 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
   final FirebaseAuth auth;
   final Firestore firestore;
   final GoogleSignIn googleSignIn;
+  final FacebookLogin facebookLogin;
 
   UserRemoteDataSourceImpl({
     @required this.auth,
     @required this.firestore,
     @required this.googleSignIn,
+    @required this.facebookLogin,
   });
 
   @override
@@ -32,17 +35,33 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
   }
 
   @override
-  Future<SharlistUser> getUserUsingFacebook() {
-    // TODO: implement getUserUsingFacebook
-    return null;
-  }
-
-  @override
   Future<SharlistUser> getUserUsingGoogle() async {
     final GoogleSignInAccount account = await _getGoogleAccount();
     final AuthCredential credential = await _getAuthCredential(account);
     final String uid = await _signInWithCredential(credential);
     return _createUserWith(uid);
+  }
+
+  @override
+  Future<SharlistUser> getUserUsingFacebook() async {
+    final FacebookLoginResult loginResult = await facebookLogin.logIn(['email']);
+    final AuthCredential credential = _getFacebookCredential(loginResult);
+    final String uid = await _signInWithCredential(credential);
+    return _createUserWith(uid);
+  }
+
+  AuthCredential _getFacebookCredential(FacebookLoginResult loginResult) {
+    switch (loginResult.status) {
+      case FacebookLoginStatus.cancelledByUser:
+        throw UnsuccessfulFacebookSignInException();
+        break;
+      case FacebookLoginStatus.error:
+        throw UnsuccessfulFacebookSignInException();
+        break;
+      case FacebookLoginStatus.loggedIn:
+        break;
+    }
+    return FacebookAuthProvider.getCredential(accessToken: loginResult.accessToken.token);
   }
 
   Future<String> _signInWithCredential(AuthCredential credential) async {
