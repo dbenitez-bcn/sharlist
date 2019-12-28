@@ -4,6 +4,7 @@ import 'package:sharlist/core/injection_container.dart';
 import 'package:sharlist/presentation/bloc/auth/auth_bloc.dart';
 import 'package:sharlist/presentation/bloc/auth/auth_event.dart';
 import 'package:sharlist/presentation/bloc/auth/auth_state.dart';
+import 'package:sharlist/presentation/pages/auth_page.dart';
 import 'package:sharlist/presentation/widgets/sign_in_anonymous_button.dart';
 
 import 'core/constants.dart';
@@ -18,22 +19,12 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        title: '${Constants.APP_NAME}',
-        theme: ThemeData(
-          // This is the theme of your application.
-          //
-          // Try running your application with "flutter run". You'll see the
-          // application has a blue toolbar. Then, without quitting the app, try
-          // changing the primarySwatch below to Colors.green and then invoke
-          // "hot reload" (press "r" in the console where you ran "flutter run",
-          // or simply save your changes to "hot reload" in a Flutter IDE).
-          // Notice that the counter didn't reset back to zero; the application
-          // is not restarted.
-          primarySwatch: Colors.blue,
-        ),
-        //home: Scaffold(body: Center(child: Text('${Constants.APP_NAME}')))
-        home: MyHomePage(title: '${Constants.APP_NAME}'),
-        );
+      title: '${Constants.APP_NAME}',
+      theme: ThemeData(
+        primarySwatch: Colors.teal,
+      ),
+      home: AuthPage(),
+    );
   }
 }
 
@@ -160,7 +151,6 @@ class GoogleButton extends StatelessWidget {
     );
   }
 }
-
 
 class FacebookButton extends StatelessWidget {
   const FacebookButton({
